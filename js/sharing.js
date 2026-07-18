@@ -41,9 +41,8 @@ async function fetchPublicIndex(force) {
 }
 
 function filterPublicIndex(index, query) {
-  const nq = normalizeSearch(query);
-  if (!nq) return [];
-  return index.filter(e => normalizeSearch(e.title).includes(nq) || normalizeSearch(e.artist).includes(nq));
+  if (!query.trim()) return [];
+  return index.filter(e => matchesQuery(query, e));
 }
 
 async function fetchPublicSong(id) {
@@ -410,11 +409,10 @@ async function buildOtherSearchPool(force) {
 }
 
 function filterOtherPool(pool, query) {
-  const nq = normalizeSearch(query);
-  if (!nq) return [];
+  if (!query.trim()) return [];
   return pool.filter(e => e.type === 'list'
-    ? normalizeSearch(e.listName).includes(nq)
-    : normalizeSearch(e.title).includes(nq) || normalizeSearch(e.artist).includes(nq));
+    ? matchesQuery(query, { title: e.listName })
+    : matchesQuery(query, { title: e.title, artist: e.artist, category: e.song && e.song.category }));
 }
 
 const ICON_LIST_SVG = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>';

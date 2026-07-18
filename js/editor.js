@@ -87,6 +87,7 @@ async function saveSong() {
       song.category = editorCategory;
       song.youtubeId = newYoutubeId;
       if (!song.originalYoutubeId && newYoutubeId) song.originalYoutubeId = newYoutubeId;
+      if (editorCategory === 'japanese') song.titleRomaji = titleToRomaji(title);
     } else {
       song = {
         id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
@@ -95,6 +96,7 @@ async function saveSong() {
         rawLyrics: raw,
         category: editorCategory,
         lines: rawLines(raw).map(buildFresh),
+        titleRomaji: editorCategory === 'japanese' ? titleToRomaji(title) : '',
         originalYoutubeId: newYoutubeId,
         youtubeId: newYoutubeId,
       };

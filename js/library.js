@@ -7,9 +7,8 @@
 /* ---------------- library (My List) ---------------- */
 
 function filterSongsList(list, query) {
-  const nq = normalizeSearch(query);
-  if (!nq) return [];
-  return list.filter(s => normalizeSearch(s.title).includes(nq) || normalizeSearch(s.artist || '').includes(nq));
+  if (!query.trim()) return [];
+  return list.filter(s => matchesQuery(query, s));
 }
 
 let librarySearchQuery = '';

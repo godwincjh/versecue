@@ -40,6 +40,17 @@ function lineText(line) {
   return line.gap ? '' : line.toks.map(t => t.s).join('');
 }
 
+// Full romaji of a Japanese title (stored on the song for romaji-aware search,
+// so a kanji-only title like 東京 is still findable by "tokyo"). Needs the
+// tokenizer; returns '' if it isn't loaded yet.
+function titleToRomaji(title) {
+  if (!tokenizer || !title) return '';
+  const toks = applyCounterReadings(tokenizer.tokenize(title).map(t => ({
+    s: t.surface_form, r: (t.reading && t.reading !== '*') ? t.reading : null,
+  })));
+  return toks.map((t, i) => tokenRomaji(t, toks[i + 1]) || '').join(' ');
+}
+
 
 function buildKoreanLineFresh(text) {
   if (!text.trim()) return { gap: true };
