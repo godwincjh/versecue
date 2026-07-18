@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#0b0b10">
+<meta name="google" content="notranslate">
+<title>Versecue</title>
+<meta property="og:title" content="Versecue — Karaoke Reading Aid">
+<meta property="og:description" content="Sing karaoke in any language — Versecue prints the reading (furigana, romaji, Hangul, pinyin) above every lyric so you can sing along, even offline.">
+<meta property="og:url" content="https://godwincjh.github.io/versecue/">
+<meta property="og:image" content="https://godwincjh.github.io/versecue/icons/og-image.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Versecue — Karaoke Reading Aid">
+<meta name="twitter:description" content="Sing karaoke in any language — Versecue prints the reading (furigana, romaji, Hangul, pinyin) above every lyric so you can sing along, even offline.">
+<meta name="twitter:image" content="https://godwincjh.github.io/versecue/icons/og-image.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="stylesheet" href="style.css">
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "084eed25c64946ffbb1b7b14e3983b28"}'></script><!-- End Cloudflare Web Analytics -->
+</head>
+<body>
+
+<!-- ============ LIBRARY VIEW (My List) ============ -->
+<section id="view-library" class="view">
+  <header class="app-header">
+    <h1><span class="logo-accent">Verse</span>cue</h1>
+    <button class="btn-ghost app-share-btn hidden" id="btn-app-share" title="Share Versecue">
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7"/></svg>
+      Share
+    </button>
+  </header>
+  <div class="tabbar">
+    <button class="tab" data-tab="public">Public List</button>
+    <button class="tab active" data-tab="library">My List</button>
+    <button class="tab" data-tab="other">Other Lists</button>
+  </div>
+  <div class="search-bar">
+    <input id="library-search-input" type="text" class="search-input" placeholder="Search your songs by title or artist" autocomplete="off">
+    <button id="library-search-clear" class="search-btn" title="Clear search"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg></button>
+    <button id="library-search-btn" class="search-btn" title="Search"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></button>
+    <div id="library-search-suggestions" class="search-suggestions hidden"></div>
+  </div>
+  <div class="lang-filter" id="lang-filter-library">
+    <button type="button" class="lang-filter-btn active" data-lang="japanese">日本語</button>
+    <button type="button" class="lang-filter-btn active" data-lang="korean">한국어</button>
+    <button type="button" class="lang-filter-btn active" data-lang="chinese">中文</button>
+    <button type="button" class="lang-filter-btn active" data-lang="english">English</button>
+  </div>
+  <div id="song-list" class="song-list"></div>
+  <div class="library-footer">
+    <button id="btn-gen-code" class="btn-ghost btn-share">📤 Generate Sharing Code</button>
+    <button id="btn-new-song" class="btn-primary btn-big">＋ New Song</button>
+  </div>
+</section>
+
+<!-- ============ PUBLIC LISTS (songs anyone has published) ============ -->
+<section id="view-public" class="view">
+  <header class="app-header">
+    <h1><span class="logo-accent">Verse</span>cue</h1>
+    <button class="btn-ghost app-share-btn hidden" title="Share Versecue">
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7"/></svg>
+      Share
+    </button>
+  </header>
+  <div class="tabbar">
+    <button class="tab active" data-tab="public">Public List</button>
+    <button class="tab" data-tab="library">My List</button>
+    <button class="tab" data-tab="other">Other Lists</button>
+  </div>
+  <div class="search-bar">
+    <input id="public-search-input" type="text" class="search-input" placeholder="Search by song title or artist" autocomplete="off">
+    <button id="public-search-clear" class="search-btn" title="Clear search"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg></button>
+    <button id="public-search-btn" class="search-btn" title="Search"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></button>
+    <div id="public-search-suggestions" class="search-suggestions hidden"></div>
+  </div>
+  <div class="sort-bar">
+    <span class="sort-label">Sort by</span>
+    <select id="public-sort-field">
+      <option value="date">Date Added</option>
+      <option value="views">Popularity</option>
+    </select>
+    <button id="public-sort-dir" class="sort-dir-btn" title="Toggle sort direction">↓</button>
+    <button id="public-refresh-btn" class="sort-dir-btn" title="Refresh list">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15.3-6.4L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.3 6.4L3 16"/><path d="M3 21v-5h5"/></svg>
+    </button>
+  </div>
+  <div class="lang-filter" id="lang-filter-public">
+    <button type="button" class="lang-filter-btn active" data-lang="japanese">日本語</button>
+    <button type="button" class="lang-filter-btn active" data-lang="korean">한국어</button>
+    <button type="button" class="lang-filter-btn active" data-lang="chinese">中文</button>
+    <button type="button" class="lang-filter-btn active" data-lang="english">English</button>
+  </div>
+  <div id="public-results" class="song-list"></div>
+</section>
+
+<!-- ============ EDITOR VIEW ============ -->
+<section id="view-editor" class="view">
+  <header class="app-header">
+    <button id="btn-editor-back" class="btn-ghost header-nav-btn">‹</button>
+    <h2 id="editor-title">New Song</h2>
+    <button class="btn-ghost header-nav-btn invisible" aria-hidden="true" tabindex="-1">‹</button>
+  </header>
+  <div class="editor-body">
+    <input id="inp-title" type="text" placeholder="Song title (required)" autocomplete="off">
+    <input id="inp-artist" type="text" placeholder="Artist (optional)" autocomplete="off">
+    <input id="inp-youtube" type="text" placeholder="YouTube video link (optional)" autocomplete="off">
+    <label class="modal-label">Language (required)</label>
+    <div class="lang-select-row">
+      <button type="button" id="lang-btn-japanese" class="lang-select-btn" data-lang="japanese">日本語 Japanese</button>
+      <button type="button" id="lang-btn-korean" class="lang-select-btn" data-lang="korean">한국어 Korean</button>
+      <button type="button" id="lang-btn-chinese" class="lang-select-btn" data-lang="chinese">中文 Chinese</button>
+      <button type="button" id="lang-btn-english" class="lang-select-btn" data-lang="english">English</button>
+    </div>
+    <textarea id="inp-lyrics" placeholder="Paste the full lyrics here…" spellcheck="false"></textarea>
+    <div id="editor-status" class="editor-status hidden"></div>
+    <button id="btn-save-song" class="btn-primary btn-big">Save</button>
+  </div>
+</section>
+
+<!-- ============ PERFORM VIEW ============ -->
+<section id="view-perform" class="view">
+  <header class="perform-header">
+    <button id="btn-perform-back" class="btn-ghost header-nav-btn">‹</button>
+    <div class="perform-title">
+      <span id="perform-song-title" lang="ja"></span>
+    </div>
+    <button id="btn-youtube-toggle" class="btn-ghost header-nav-btn" title="YouTube">
+      <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5.5" width="19" height="13" rx="3"/><path d="m10.5 9.5 5 2.5-5 2.5z" fill="currentColor" stroke="none"/></svg>
+    </button>
+    <button id="btn-perform-home" class="btn-ghost header-nav-btn invisible" title="My List"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 11.5 12 4l8.5 7.5"/><path d="M5.5 10v9a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-9"/><path d="M9.5 20v-6h5v6"/></svg></button>
+  </header>
+  <div id="reading-mode-row" class="reading-mode-row hidden">
+    <button type="button" id="mode-btn-furigana" class="reading-mode-btn active" data-mode="furigana" title="Furigana">あ</button>
+    <button type="button" id="mode-btn-romaji" class="reading-mode-btn" data-mode="romaji" title="Romaji">A</button>
+    <button type="button" id="mode-btn-hangul" class="reading-mode-btn" data-mode="hangul" title="Hangul">한</button>
+    <button type="button" id="mode-btn-katakana" class="reading-mode-btn" data-mode="katakana" title="Katakana">ア</button>
+  </div>
+  <div id="perform-edit-hint" class="edit-hint">Tap a word (or drag across a few) to fix its furigana</div>
+  <div id="lyrics-scroll" class="lyrics-scroll">
+    <div id="youtube-panel" class="youtube-panel hidden">
+      <div class="youtube-search-bar">
+        <input id="youtube-search-input" type="text" class="search-input" placeholder="Paste a YouTube video link" autocomplete="off">
+        <button id="youtube-load-btn" class="search-btn" title="Load link" disabled><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></button>
+        <button id="youtube-pin-btn" class="search-btn" title="Pin"></button>
+      </div>
+      <div class="youtube-controls-row">
+        <button id="youtube-revert-btn" class="youtube-revert-btn" disabled>Revert to original video</button>
+      </div>
+      <p id="youtube-error" class="youtube-error hidden">Please enter a valid YouTube video link.</p>
+      <iframe id="youtube-frame" class="youtube-frame" src="" title="YouTube video" allow="autoplay; encrypted-media" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div id="lyrics-container" class="lyrics-container" lang="ja"></div>
+  </div>
+  <div id="selection-bar" class="selection-bar hidden">
+    <span id="selection-count"></span>
+    <div class="selection-bar-buttons">
+      <button id="btn-sel-cancel" class="btn-ghost">Cancel</button>
+      <button id="btn-sel-edit" class="btn-primary">Edit furigana</button>
+    </div>
+  </div>
+  <footer class="perform-controls">
+    <button id="btn-perform-back-2" class="ctl ctl-icon" title="Back">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <button id="btn-perform-add" class="ctl ctl-icon hidden" title="Add to List">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+    </button>
+    <button id="btn-font-minus" class="ctl ctl-icon" title="Smaller text">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/><path d="M8 11h6"/></svg>
+    </button>
+    <button id="btn-font-plus" class="ctl ctl-icon" title="Bigger text">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/><path d="M8 11h6"/><path d="M11 8v6"/></svg>
+    </button>
+  </footer>
+</section>
+
+<!-- ============ OTHER LISTS (My List's peer tab) ============ -->
+<section id="view-other-view" class="view">
+  <header class="app-header">
+    <h1><span class="logo-accent">Verse</span>cue</h1>
+    <button class="btn-ghost app-share-btn hidden" title="Share Versecue">
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7"/></svg>
+      Share
+    </button>
+  </header>
+  <div class="tabbar">
+    <button class="tab" data-tab="public">Public List</button>
+    <button class="tab" data-tab="library">My List</button>
+    <button class="tab active" data-tab="other">Other Lists</button>
+  </div>
+  <div class="search-bar">
+    <input id="other-search-input" type="text" class="search-input" placeholder="Search a list name or a song in your lists" autocomplete="off">
+    <button id="other-search-clear" class="search-btn" title="Clear search"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg></button>
+    <button id="other-search-btn" class="search-btn" title="Search"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></button>
+    <div id="other-search-suggestions" class="search-suggestions hidden"></div>
+  </div>
+  <div id="other-list-items" class="song-list"></div>
+  <div class="library-footer">
+    <button id="btn-add-list" class="btn-primary btn-big">➕ Add List</button>
+  </div>
+</section>
+
+<!-- ============ OTHER LISTS: ADD BY CODE ============ -->
+<section id="view-other-add" class="view">
+  <header class="perform-header">
+    <button id="btn-other-add-back" class="btn-ghost header-nav-btn">‹</button>
+    <div class="perform-title"><span>Add List</span></div>
+    <button id="btn-other-add-home" class="btn-ghost header-nav-btn" title="My List"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 11.5 12 4l8.5 7.5"/><path d="M5.5 10v9a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-9"/><path d="M9.5 20v-6h5v6"/></svg></button>
+  </header>
+  <div class="editor-body">
+    <label class="modal-label">Enter the code your friend shared</label>
+    <input id="add-code-input" type="text" autocomplete="off" placeholder="e.g. K7XQ2R" class="code-input">
+    <div id="add-code-status" class="editor-status hidden"></div>
+    <button id="btn-add-code-submit" class="btn-primary btn-big">Add List</button>
+  </div>
+</section>
+
+<!-- ============ SHARED LIBRARY (read-only view of someone else's songs) ============ -->
+<section id="view-shared-library" class="view">
+  <header class="perform-header">
+    <button id="btn-shared-lib-back" class="btn-ghost header-nav-btn">‹</button>
+    <div class="perform-title">
+      <span id="shared-lib-title"></span>
+      <span id="shared-lib-sub" class="perform-progress"></span>
+    </div>
+    <button id="btn-shared-lib-home" class="btn-ghost header-nav-btn" title="My List"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 11.5 12 4l8.5 7.5"/><path d="M5.5 10v9a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-9"/><path d="M9.5 20v-6h5v6"/></svg></button>
+  </header>
+  <div class="lang-filter" id="lang-filter-shared">
+    <button type="button" class="lang-filter-btn active" data-lang="japanese">日本語</button>
+    <button type="button" class="lang-filter-btn active" data-lang="korean">한국어</button>
+    <button type="button" class="lang-filter-btn active" data-lang="chinese">中文</button>
+    <button type="button" class="lang-filter-btn active" data-lang="english">English</button>
+  </div>
+  <div id="shared-song-list" class="song-list"></div>
+</section>
+
+<!-- ============ READING FIX MODAL ============ -->
+<div id="modal-backdrop" class="modal-backdrop hidden">
+  <div class="modal">
+    <div class="modal-word" id="modal-word"></div>
+    <label class="modal-label" id="modal-reading-label">Reading (hiragana)</label>
+    <input id="modal-reading" type="text" autocomplete="off" placeholder="ひらがな">
+    <div id="modal-reading-chips" class="reading-chips hidden"></div>
+    <div class="modal-buttons">
+      <button id="modal-cancel" class="btn-ghost">Cancel</button>
+      <button id="modal-save" class="btn-primary">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ GENERATE SHARING CODE MODAL ============ -->
+<div id="gen-code-modal-backdrop" class="modal-backdrop hidden">
+  <div class="modal">
+    <div class="modal-word share-modal-title">Generate Sharing Code</div>
+    <p class="modal-desc">Generate a code to share with your friends so they can add your list to theirs.</p>
+    <div id="gen-code-setup">
+      <label class="modal-label">List Name</label>
+      <input id="gen-list-name" type="text" autocomplete="off" placeholder="e.g. My Karaoke Favorites">
+      <label class="modal-label gen-code-label-2">Your Name</label>
+      <input id="gen-user-name" type="text" autocomplete="off" placeholder="e.g. Tom">
+      <div id="gen-code-status" class="editor-status hidden"></div>
+      <div class="modal-buttons">
+        <button id="gen-code-cancel" class="btn-ghost">Cancel</button>
+        <button id="gen-code-submit" class="btn-primary">Generate</button>
+      </div>
+    </div>
+    <div id="gen-code-result" class="hidden">
+      <label class="modal-label">Your code</label>
+      <div class="gen-code-row">
+        <div id="gen-code-display" class="gen-code-display"></div>
+        <button id="gen-code-copy-code" class="gen-code-copy-btn" title="Copy code">📋</button>
+      </div>
+      <label class="modal-label gen-code-label-2">Message to send</label>
+      <div class="gen-code-row">
+        <textarea id="gen-code-message" readonly class="gen-code-message"></textarea>
+        <button id="gen-code-copy" class="gen-code-copy-btn" title="Copy message">📋</button>
+      </div>
+      <div class="modal-buttons">
+        <button id="gen-code-close" class="btn-ghost">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ REMOVE OTHER LIST CONFIRM MODAL ============ -->
+<div id="remove-other-backdrop" class="modal-backdrop hidden">
+  <div class="modal">
+    <div class="modal-word share-modal-title">Remove this list?</div>
+    <p class="remove-other-note">(This list would only be removed for you)</p>
+    <div class="modal-buttons">
+      <button id="remove-other-cancel" class="btn-ghost">Cancel</button>
+      <button id="remove-other-confirm" class="btn-primary">Remove</button>
+    </div>
+  </div>
+</div>
+
+<div id="publish-confirm-backdrop" class="modal-backdrop hidden">
+  <div class="modal">
+    <div class="modal-word share-modal-title">Publish to Public List?</div>
+    <p class="modal-desc">Please confirm your lyrics are updated and accurate.</p>
+    <div class="modal-buttons">
+      <button id="publish-confirm-cancel" class="btn-ghost">Cancel</button>
+      <button id="publish-confirm-confirm" class="btn-primary">Publish</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ REMOVE SONG (MY LIST) CONFIRM MODAL ============ -->
+<div id="remove-song-backdrop" class="modal-backdrop hidden">
+  <div class="modal">
+    <div class="modal-word share-modal-title">Remove this song from your list?</div>
+    <div class="modal-buttons">
+      <button id="remove-song-cancel" class="btn-ghost">Cancel</button>
+      <button id="remove-song-confirm" class="btn-primary">Remove</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ADD TO LIST CONFIRM MODAL ============ -->
+<div id="add-confirm-backdrop" class="modal-backdrop hidden">
+  <div class="modal">
+    <div class="modal-word share-modal-title">Add this song to My List?</div>
+    <div class="modal-buttons">
+      <button id="add-confirm-cancel" class="btn-ghost">Cancel</button>
+      <button id="add-confirm-confirm" class="btn-primary">Add</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script src="lib/kuromoji.js"></script>
+<script src="lib/pinyin-pro.js"></script>
+<!-- App modules, loaded in dependency order (foundation → domain → UI → features → bootstrap) -->
+<script src="js/state.js"></script>
+<script src="js/ui-core.js"></script>
+<script src="js/translit.js"></script>
+<script src="js/tokenize.js"></script>
+<script src="js/library.js"></script>
+<script src="js/editor.js"></script>
+<script src="js/perform.js"></script>
+<script src="js/perform-youtube.js"></script>
+<script src="js/sharing.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
