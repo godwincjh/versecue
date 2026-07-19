@@ -76,7 +76,10 @@ function toggleYoutubePanel() {
   updatePinIcon();
   panel.classList.remove('hidden');
   hideYoutubeError();
-  const current = currentSong && currentSong.youtubeId;
+  // Prefer the current (possibly-overridden) video, but fall back to the
+  // original so it's loaded and ready even when youtubeId isn't set yet
+  // (e.g. songs opened from Public List / Other Lists carry only the original).
+  const current = currentSong && (currentSong.youtubeId || currentSong.originalYoutubeId);
   youtubeLoadedValue = current ? canonicalYoutubeUrl(current) : '';
   $('youtube-search-input').value = youtubeLoadedValue;
   $('youtube-frame').src = current ? `https://www.youtube-nocookie.com/embed/${current}` : '';
