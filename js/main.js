@@ -137,6 +137,19 @@ initSongs();
 
 /* ---------------- service worker ---------------- */
 
+// Auto-update: a freshly deployed worker (new CACHE) skip-waits and claims
+// clients, firing 'controllerchange' — we reload once so everyone lands on the
+// newest build without manually clearing anything. Guarded by hadController so
+// it never fires on the first-ever install, only on a real version change.
+// This clears only the app CACHE; My List songs live in localStorage and are
+// never touched by the reload.
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  const hadController = !!navigator.serviceWorker.controller;
+  let reloading = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (reloading || !hadController) return;
+    reloading = true;
+    location.reload();
+  });
   navigator.serviceWorker.register('sw.js').catch(() => {});
 }
