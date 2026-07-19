@@ -130,6 +130,13 @@ function editLabelFor(cat) {
   return 'Edit furigana';
 }
 
+function editHintFor(cat) {
+  const what = cat === 'korean' ? 'its romanised lyrics'
+    : cat === 'chinese' ? 'its pinyin'
+    : 'its furigana';
+  return `Tap a word (or drag across a few) to fix ${what}`;
+}
+
 function buildLyricsDom(song) {
   const cont = $('lyrics-container');
   cont.innerHTML = '';
@@ -217,8 +224,9 @@ function openPerform(song) {
   updateReadingModeButtons(cat);
   $('perform-song-title').textContent = song.title;
   $('perform-song-title').lang = langAttrFor(cat);
+  $('perform-edit-hint').textContent = editHintFor(cat);
   $('perform-edit-hint').classList.toggle('hidden', performReadOnly || cat === 'english');
-  $('btn-perform-home').classList.toggle('invisible', !performReadOnly);
+  $('btn-perform-home').classList.remove('invisible'); // Home is always available, incl. My List songs
   $('btn-sel-edit').textContent = editLabelFor(cat);
   stopYoutubePanel();
   updatePerformAddButton();

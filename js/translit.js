@@ -398,11 +398,9 @@ function romajiForRange(toks, start, end) {
  *   - nasalization (비음화): a plosive-representative batchim (ㄱ/ㄷ/ㅂ)
  *     followed by a nasal-initial syllable (ㄴ/ㅁ) becomes the matching
  *     nasal (없는 → eomneun, not eobs-neun).
- * Not handled: rarer assimilations like ㄴ+ㄹ liquidization (신라 →
- * "sinra" not the correct "silla"), palatalization, or tensification
- * (which official Revised Romanization doesn't reflect anyway) — those
- * are why Korean songs still get full manual editing with no
- * auto-suggestions.
+ * Also handles ㄴ+ㄹ / ㄹ+ㄴ liquidization (신라 → silla, 실내 → sillae) and
+ * ㄷ/ㅌ + 이/y-vowel palatalization (같이 → gachi, 굳이 → guji). Tensification
+ * is left out (official Revised Romanization doesn't reflect it anyway).
  */
 const HANGUL_BASE = 0xAC00;
 const HANGUL_LAST = 0xD7A3;
@@ -428,6 +426,7 @@ const JONGSEONG_LIAISON = {
   25: { carry: '', move: 't' },  26: { carry: '', move: 'p' },  27: { carry: '', move: '' },
 };
 const NASAL_MAP = { k: 'ng', t: 'n', p: 'm' };
+const PALATAL_MEDIALS = new Set([2, 3, 6, 7, 12, 17, 20]); // 이 and y-vowels (ya/yae/yeo/ye/yo/yu/i)
 
 function isHangulSyllable(ch) {
   const code = ch.codePointAt(0);
@@ -470,8 +469,17 @@ function romanizeWord(word) {
     if (syl.final !== 0 && next) {
       if (next.initial === 11 && JONGSEONG_LIAISON[syl.final]) {
         const rule = JONGSEONG_LIAISON[syl.final];
+        let move = rule.move;
+        // palatalization: ㄷ/ㅌ before 이 or a y-vowel → ㅈ/ㅊ (같이 gachi, 굳이 guji)
+        if ((syl.final === 7 || syl.final === 25) && PALATAL_MEDIALS.has(next.medial)) move = syl.final === 7 ? 'j' : 'ch';
         result += initialLetter + RR_MEDIALS[syl.medial] + rule.carry;
-        forcedInitial = rule.move;
+        forcedInitial = move;
+        continue;
+      }
+      // ㄴ+ㄹ / ㄹ+ㄴ liquidization → ll (신라 silla, 실내 sillae, 설날 seollal)
+      if ((syl.final === 4 && next.initial === 5) || (syl.final === 8 && next.initial === 2)) {
+        result += initialLetter + RR_MEDIALS[syl.medial] + 'l';
+        forcedInitial = 'l';
         continue;
       }
       let finalSound = RR_FINALS[syl.final];

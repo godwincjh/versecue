@@ -14,7 +14,11 @@ function filterSongsList(list, query) {
 let librarySearchQuery = '';
 const libraryLangFilter = { japanese: true, korean: true, chinese: true, english: true };
 
-function renderLibrary() {
+let libraryPage = 0;
+
+function renderLibrary() { libraryPage = 0; renderLibraryPage(); }  // external entry: back to page 1
+
+function renderLibraryPage() {
   const base = librarySearchQuery ? filterSongsList(songs, librarySearchQuery) : songs;
   const list = base.filter(s => passesLangFilter(songCategory(s), libraryLangFilter));
   const wrap = $('song-list');
@@ -30,7 +34,8 @@ function renderLibrary() {
     wrap.appendChild(d);
     return;
   }
-  for (const song of list) {
+  libraryPage = Math.min(libraryPage, pageCount(list.length) - 1);
+  for (const song of pageSlice(list, libraryPage)) {
     const card = document.createElement('div');
     card.className = 'song-card';
 
@@ -70,6 +75,7 @@ function renderLibrary() {
     card.append(main, bPublish, bEdit, bDel);
     wrap.appendChild(card);
   }
+  appendPagination(wrap, list.length, libraryPage, p => { libraryPage = p; renderLibraryPage(); wrap.scrollTop = 0; });
 }
 
 function confirmPublish(song) {

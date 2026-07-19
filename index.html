@@ -53,7 +53,7 @@
   <div id="song-list" class="song-list"></div>
   <div class="library-footer">
     <button id="btn-gen-code" class="btn-ghost btn-share">📤 Generate Sharing Code</button>
-    <button id="btn-new-song" class="btn-primary btn-big">＋ New Song</button>
+    <button id="btn-new-song" class="btn-primary btn-big">➕ New Song</button>
   </div>
 </section>
 
@@ -106,7 +106,10 @@
   </header>
   <div class="editor-body">
     <input id="inp-title" type="text" placeholder="Song title (required)" autocomplete="off">
-    <input id="inp-artist" type="text" placeholder="Artist (optional)" autocomplete="off">
+    <div class="artist-field">
+      <input id="inp-artist" type="text" placeholder="Artist (optional)" autocomplete="off">
+      <div id="artist-suggestions" class="search-suggestions artist-suggestions hidden"></div>
+    </div>
     <input id="inp-youtube" type="text" placeholder="YouTube video link (optional)" autocomplete="off">
     <label class="modal-label">Language (required)</label>
     <div class="lang-select-row">

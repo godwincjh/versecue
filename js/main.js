@@ -62,6 +62,7 @@ document.querySelectorAll('.tab').forEach(btn => {
 attachLibrarySearch();
 attachPublicSearch();
 attachOtherSearch();
+wireArtistSuggestions();
 
 wireLangFilter('lang-filter-library', libraryLangFilter, renderLibrary);
 wireLangFilter('lang-filter-public', publicLangFilter, () => refreshPublicView());

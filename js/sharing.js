@@ -81,10 +81,14 @@ async function refreshPublicView(force) {
   const query = $('public-search-input').value.trim();
   const base = query ? filterPublicIndex(idx, query) : idx;
   const filtered = base.filter(e => passesLangFilter(songCategory(e), publicLangFilter));
+  publicPage = 0; // new search/filter/sort/refresh starts at page 1; sort already spans the full list
   renderPublicResults(sortPublicEntries(filtered), idx.length === 0);
 }
 
+let publicPage = 0, lastPublicMatches = [], lastPublicIndexEmpty = false;
+
 function renderPublicResults(matches, indexEmpty) {
+  lastPublicMatches = matches; lastPublicIndexEmpty = indexEmpty;
   const wrap = $('public-results');
   wrap.innerHTML = '';
   if (!matches.length) {
@@ -96,7 +100,8 @@ function renderPublicResults(matches, indexEmpty) {
     wrap.appendChild(d);
     return;
   }
-  for (const e of matches.slice(0, 50)) {
+  publicPage = Math.min(publicPage, pageCount(matches.length) - 1);
+  for (const e of pageSlice(matches, publicPage)) {
     const card = document.createElement('div');
     card.className = 'song-card';
     const main = document.createElement('div');
@@ -137,6 +142,7 @@ function renderPublicResults(matches, indexEmpty) {
     card.append(main, bAdd);
     wrap.appendChild(card);
   }
+  appendPagination(wrap, matches.length, publicPage, p => { publicPage = p; renderPublicResults(lastPublicMatches, lastPublicIndexEmpty); wrap.scrollTop = 0; });
 }
 
 function attachPublicSearch() {
@@ -256,7 +262,10 @@ async function addSharedListByCode(code, statusEl) {
   return true;
 }
 
-function renderOtherListItems() {
+let otherPage = 0;
+function renderOtherListItems() { otherPage = 0; renderOtherListItemsPage(); }
+
+function renderOtherListItemsPage() {
   const wrap = $('other-list-items');
   wrap.innerHTML = '';
   const list = otherLists();
@@ -267,7 +276,8 @@ function renderOtherListItems() {
     wrap.appendChild(d);
     return;
   }
-  for (const item of list) {
+  otherPage = Math.min(otherPage, pageCount(list.length) - 1);
+  for (const item of pageSlice(list, otherPage)) {
     const card = document.createElement('div');
     card.className = 'song-card';
 
@@ -290,6 +300,7 @@ function renderOtherListItems() {
     card.append(main, bDel);
     wrap.appendChild(card);
   }
+  appendPagination(wrap, list.length, otherPage, p => { otherPage = p; renderOtherListItemsPage(); wrap.scrollTop = 0; });
 }
 
 function confirmRemoveOther(code) {
@@ -329,7 +340,10 @@ async function openSharedLibrary(code, listName, userName) {
   renderSharedSongList();
 }
 
-function renderSharedSongList() {
+let sharedPage = 0;
+function renderSharedSongList() { sharedPage = 0; renderSharedSongPage(); }
+
+function renderSharedSongPage() {
   const wrap = $('shared-song-list');
   wrap.innerHTML = '';
   const list = (sharedLibSongs || []).filter(s => passesLangFilter(songCategory(s), sharedLangFilter));
@@ -347,7 +361,8 @@ function renderSharedSongList() {
     wrap.appendChild(d);
     return;
   }
-  for (const song of list) {
+  sharedPage = Math.min(sharedPage, pageCount(list.length) - 1);
+  for (const song of pageSlice(list, sharedPage)) {
     const card = document.createElement('div');
     card.className = 'song-card';
     const main = document.createElement('div');
@@ -377,13 +392,14 @@ function renderSharedSongList() {
       if (alreadyAdded) return;
       confirmAddToList(() => {
         addSongToMyList(song, song.id);
-        renderSharedSongList();
+        renderSharedSongPage();
       });
     };
 
     card.append(main, bAdd);
     wrap.appendChild(card);
   }
+  appendPagination(wrap, list.length, sharedPage, p => { sharedPage = p; renderSharedSongPage(); wrap.scrollTop = 0; });
 }
 
 /* ---------------- other lists search (list names + songs across all added lists) ---------------- */

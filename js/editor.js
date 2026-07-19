@@ -44,7 +44,36 @@ function openEditor(song) {
   $('inp-youtube').value = song && song.youtubeId ? canonicalYoutubeUrl(song.youtubeId) : '';
   setEditorCategory(song ? songCategory(song) : null);
   setEditorStatus(null);
+  hideAnimated($('artist-suggestions'));
   showView('editor');
+}
+
+// Distinct existing artist names matching what's typed (same romaji-aware
+// matching as the search bars). Clicking one fills the field (still editable).
+function artistSuggestions(query) {
+  const seen = new Set(), out = [];
+  for (const s of songs) {
+    const a = (s.artist || '').trim();
+    if (!a || seen.has(a.toLowerCase())) continue;
+    if (matchesQuery(query, { title: a, category: songCategory(s) })) { seen.add(a.toLowerCase()); out.push(a); }
+  }
+  return out.slice(0, 8);
+}
+
+function wireArtistSuggestions() {
+  const input = $('inp-artist');
+  const wrap = $('artist-suggestions');
+  let timer = null;
+  const close = () => hideAnimated(wrap);
+  input.addEventListener('input', () => {
+    clearTimeout(timer);
+    if (!shouldSuggest(input.value)) { close(); return; }
+    timer = setTimeout(() => {
+      renderSuggestionDropdown(wrap, artistSuggestions(input.value).map(n => ({ title: n })), item => { input.value = item.title; close(); });
+    }, 150);
+  });
+  input.addEventListener('focus', () => { if (shouldSuggest(input.value)) input.dispatchEvent(new Event('input')); });
+  document.addEventListener('click', e => { if (e.target !== input && !wrap.contains(e.target)) close(); });
 }
 
 function setEditorStatus(msg) {
