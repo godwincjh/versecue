@@ -31,7 +31,8 @@ function buildLineFresh(text) {
   if (!text.trim()) return { gap: true };
   const toks = applyCounterReadings(tokenizer.tokenize(text).map(t => ({
     s: t.surface_form,
-    r: (t.reading && t.reading !== '*') ? t.reading : null,
+    r: (t.reading && t.reading !== '*') ? t.reading
+      : (isAllKana(t.surface_form) ? hiraToKata(t.surface_form) : null), // katakana loanwords absent from IPADIC read as themselves
   })));
   return { toks, groups: [], romajiGroups: [], hangulGroups: [] };
 }

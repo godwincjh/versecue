@@ -16,6 +16,16 @@ function kataToHira(s) {
     ch => String.fromCharCode(ch.charCodeAt(0) - 0x60));
 }
 
+function hiraToKata(s) {
+  return s.replace(/[ぁ-ゖ]/g, ch => String.fromCharCode(ch.charCodeAt(0) + 0x60));
+}
+
+// Whole string is kana (hiragana/katakana block) — so the word's own kana can
+// stand in as its reading when the dictionary didn't supply one (common for
+// katakana loanwords / names like ヨアソビ that aren't in IPADIC).
+const KANA_ONLY_RE = /^[぀-ヿ]+$/;
+function isAllKana(s) { return KANA_ONLY_RE.test(s); }
+
 function escapeRegex(s) {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
@@ -190,6 +200,18 @@ const KANA_ROMAJI = {
   'ば': 'ba', 'び': 'bi', 'ぶ': 'bu', 'べ': 'be', 'ぼ': 'bo',
   'ぱ': 'pa', 'ぴ': 'pi', 'ぷ': 'pu', 'ぺ': 'pe', 'ぽ': 'po',
   'ぁ': 'a', 'ぃ': 'i', 'ぅ': 'u', 'ぇ': 'e', 'ぉ': 'o', 'ゎ': 'wa',
+  'ゔ': 'vu',
+};
+// Extended katakana combos (base kana + small vowel), in hiragana form since
+// kanaToRomaji lowercases to hiragana first — フェ→fe, ウィ→wi, ティ→ti, ヴァ→va…
+const KANA_ROMAJI_EXT = {
+  'ふぁ': 'fa', 'ふぃ': 'fi', 'ふぇ': 'fe', 'ふぉ': 'fo', 'ふゅ': 'fyu',
+  'うぃ': 'wi', 'うぇ': 'we', 'うぉ': 'wo',
+  'ゔぁ': 'va', 'ゔぃ': 'vi', 'ゔぇ': 've', 'ゔぉ': 'vo', 'ゔゃ': 'vya', 'ゔゅ': 'vyu', 'ゔょ': 'vyo',
+  'てぃ': 'ti', 'でぃ': 'di', 'とぅ': 'tu', 'どぅ': 'du', 'てゅ': 'tyu', 'でゅ': 'dyu',
+  'ちぇ': 'che', 'しぇ': 'she', 'じぇ': 'je',
+  'つぁ': 'tsa', 'つぃ': 'tsi', 'つぇ': 'tse', 'つぉ': 'tso',
+  'いぇ': 'ye', 'くぁ': 'kwa', 'ぐぁ': 'gwa', 'すぃ': 'si', 'ずぃ': 'zi',
 };
 const KANA_ROMAJI_YOON = {
   'きゃ': 'kya', 'きゅ': 'kyu', 'きょ': 'kyo',
@@ -225,7 +247,7 @@ function kanaToRomaji(kana, lookaheadKana) {
     if (ch === 'っ') {
       const isLast = i === hira.length - 1;
       const peek = isLast ? lookahead : hira.slice(i + 1, i + 3);
-      const next = KANA_ROMAJI_YOON[peek.slice(0, 2)] || KANA_ROMAJI[peek[0]];
+      const next = KANA_ROMAJI_YOON[peek.slice(0, 2)] || KANA_ROMAJI_EXT[peek.slice(0, 2)] || KANA_ROMAJI[peek[0]];
       if (next) result += next.startsWith('ch') ? 't' : next[0];
       i++;
       continue;
@@ -236,11 +258,12 @@ function kanaToRomaji(kana, lookaheadKana) {
       i++;
       continue;
     }
-    const yoon = KANA_ROMAJI_YOON[hira.slice(i, i + 2)];
-    if (yoon) { result += yoon; i += 2; continue; }
+    const two = hira.slice(i, i + 2);
+    const digraph = KANA_ROMAJI_YOON[two] || KANA_ROMAJI_EXT[two];
+    if (digraph) { result += digraph; i += 2; continue; }
     if (ch === 'ん') {
       const next = hira[i + 1];
-      const nextRomaji = next ? (KANA_ROMAJI_YOON[hira.slice(i + 1, i + 3)] || KANA_ROMAJI[next]) : null;
+      const nextRomaji = next ? (KANA_ROMAJI_YOON[hira.slice(i + 1, i + 3)] || KANA_ROMAJI_EXT[hira.slice(i + 1, i + 3)] || KANA_ROMAJI[next]) : null;
       result += 'n' + (nextRomaji && /^[aiueoy]/.test(nextRomaji) ? "'" : '');
       i++;
       continue;
@@ -259,11 +282,18 @@ function kanaToRomaji(kana, lookaheadKana) {
  * larger word, where they'd stay attached to that word's token), a token
  * whose whole surface is exactly は or へ is reliably the particle case.
  */
+// The reading to romanize: the dictionary reading, or — when it didn't supply
+// one — the surface itself if it's already all-kana, so katakana loanwords /
+// names like ヨアソビ still get romaji even without an IPADIC entry.
+function tokenReading(tok) {
+  return tok.r || (isAllKana(tok.s) ? tok.s : null);
+}
 function tokenRomaji(tok, nextTok) {
-  if (!tok.r) return null;
+  const r = tokenReading(tok);
+  if (!r) return null;
   if (tok.s === 'は') return 'wa';
   if (tok.s === 'へ') return 'e';
-  return kanaToRomaji(tok.r, nextTok && nextTok.r);
+  return kanaToRomaji(r, nextTok && tokenReading(nextTok));
 }
 
 /*
