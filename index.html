@@ -20,6 +20,17 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=3">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=3">
 <link rel="stylesheet" href="style.css">
+<!-- Catch the Android install prompt here in <head>: it can fire before the
+     scripts at the end of <body> have run, so we stash it for sharing.js. -->
+<script>
+  window.__vcInstallPrompt = null;
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    window.__vcInstallPrompt = e;
+    window.dispatchEvent(new Event('vc-installable'));
+  });
+</script>
+
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "932f354a99304cb38d526875bd552178"}'></script><!-- End Cloudflare Web Analytics -->
 </head>
 <body>
@@ -28,10 +39,16 @@
 <section id="view-library" class="view">
   <header class="app-header">
     <h1><span class="logo-accent">Verse</span>cue</h1>
-    <button class="btn-ghost app-share-btn hidden" id="btn-app-share" title="Share Versecue">
-      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7"/></svg>
-      Share
-    </button>
+    <div class="header-actions">
+      <button class="btn-ghost app-install-btn hidden" id="btn-app-install" title="Add Versecue to your home screen">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v10"/><path d="M8 10l4 4 4-4"/><path d="M5 18v1a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-1"/></svg>
+        Install
+      </button>
+      <button class="btn-ghost app-share-btn hidden" id="btn-app-share" title="Share Versecue">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7"/></svg>
+        Share
+      </button>
+    </div>
   </header>
   <div class="tabbar">
     <button class="tab" data-tab="public">Public List</button>
@@ -61,10 +78,16 @@
 <section id="view-public" class="view">
   <header class="app-header">
     <h1><span class="logo-accent">Verse</span>cue</h1>
-    <button class="btn-ghost app-share-btn hidden" title="Share Versecue">
-      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7"/></svg>
-      Share
-    </button>
+    <div class="header-actions">
+      <button class="btn-ghost app-install-btn hidden" title="Add Versecue to your home screen">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v10"/><path d="M8 10l4 4 4-4"/><path d="M5 18v1a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-1"/></svg>
+        Install
+      </button>
+      <button class="btn-ghost app-share-btn hidden" title="Share Versecue">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7"/></svg>
+        Share
+      </button>
+    </div>
   </header>
   <div class="tabbar">
     <button class="tab active" data-tab="public">Public List</button>
@@ -184,10 +207,16 @@
 <section id="view-other-view" class="view">
   <header class="app-header">
     <h1><span class="logo-accent">Verse</span>cue</h1>
-    <button class="btn-ghost app-share-btn hidden" title="Share Versecue">
-      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7"/></svg>
-      Share
-    </button>
+    <div class="header-actions">
+      <button class="btn-ghost app-install-btn hidden" title="Add Versecue to your home screen">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v10"/><path d="M8 10l4 4 4-4"/><path d="M5 18v1a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-1"/></svg>
+        Install
+      </button>
+      <button class="btn-ghost app-share-btn hidden" title="Share Versecue">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7"/></svg>
+        Share
+      </button>
+    </div>
   </header>
   <div class="tabbar">
     <button class="tab" data-tab="public">Public List</button>

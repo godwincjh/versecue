@@ -27,6 +27,52 @@ if (navigator.share) {
   });
 }
 
+/* ---------------- install to home screen ---------------- */
+
+/*
+ * One-tap "add to home screen" for Android. Chrome fires beforeinstallprompt
+ * only when the app is genuinely installable and not already installed, so
+ * using it as the visibility signal means the button is never a dead end.
+ * The event itself is captured in <head> (it can fire before this file runs)
+ * and handed over via window.__vcInstallPrompt + the 'vc-installable' event.
+ * iOS Safari never fires it, so the button simply stays hidden there.
+ */
+const installButtons = () => document.querySelectorAll('.app-install-btn');
+
+function isStandalone() {
+  return window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+}
+
+function showInstallButtons() {
+  if (isStandalone()) return;
+  installButtons().forEach(btn => {
+    btn.classList.remove('hidden');
+    btn.onclick = runInstallPrompt;
+  });
+}
+
+function hideInstallButtons() {
+  installButtons().forEach(btn => btn.classList.add('hidden'));
+}
+
+async function runInstallPrompt() {
+  const prompt = window.__vcInstallPrompt;
+  if (!prompt) return;
+  hideInstallButtons();          // the event is single-use either way
+  prompt.prompt();
+  const { outcome } = await prompt.userChoice;
+  window.__vcInstallPrompt = null;
+  if (outcome !== 'accepted') showInstallButtons();  // let them try again later
+}
+
+if (window.__vcInstallPrompt) showInstallButtons();
+window.addEventListener('vc-installable', showInstallButtons);
+window.addEventListener('appinstalled', () => {
+  window.__vcInstallPrompt = null;
+  hideInstallButtons();
+  showToast('Versecue added to your home screen');
+});
+
 /* ---------------- public lists (anyone's published songs) ---------------- */
 
 let publicIndexCache = null;

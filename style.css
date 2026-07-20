@@ -74,6 +74,28 @@ html, body {
 }
 .app-share-btn:active { color: var(--text); background: var(--panel-2); }
 
+.header-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+/* Install (add to home screen) — same shape as Share, but tinted so the
+   one-tap install reads as the primary invitation. Only ever visible on
+   devices that actually fire beforeinstallprompt (Android Chrome et al). */
+/* button.* so the tint beats .btn-ghost's `background: none`, which is
+   declared later in this file and would otherwise win on source order. */
+button.app-install-btn {
+  background: var(--panel);
+  background: color-mix(in srgb, var(--accent) 18%, var(--panel));
+  color: var(--accent);
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+button.app-install-btn:active { background: color-mix(in srgb, var(--accent) 30%, var(--panel)); }
+
 /* ---------- buttons ---------- */
 button { font-family: inherit; border: none; cursor: pointer; }
 .icon-btn { display: inline-flex; align-items: center; justify-content: center; }
